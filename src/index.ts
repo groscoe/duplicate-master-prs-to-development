@@ -6,16 +6,20 @@ export = (app: Application) => {
     const pr = context.payload.pull_request;
 
     if (pr.base.ref === 'master') {
-      const repo = context.repo();
-
-      await context.github.pulls.create({
-        owner: repo.owner,
-        repo: repo.repo,
+      const repo = context.payload.repository;
+      const params = {
+        owner: repo.owner.login,
+        repo: repo.full_name,
         title: `[DEV] ${pr.title}`,
         head: pr.head.ref,
         base: 'development',
         body: `Ver o [PR pra master](${pr.html_url})`
-      })
+      };
+
+      console.log(`Trying to duplicate PR to ${repo.full_name}...`);
+      console.log(`Params: ${JSON.stringify(params)}`);
+
+      await context.github.pulls.create(params)
     }
   })
 }
