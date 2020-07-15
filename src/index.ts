@@ -1,13 +1,18 @@
-import { Application } from 'probot' // eslint-disable-line no-unused-vars
+import { Application, Context } from 'probot' // eslint-disable-line no-unused-vars
+import Webhooks from '@octokit/webhooks';
 
 export = (app: Application) => {
-  app.on('issues.opened', async (context) => {
-    const issueComment = context.issue({ body: 'Thanks for opening this issue!' })
-    await context.github.issues.createComment(issueComment)
-  })
-  // For more information on building apps:
-  // https://probot.github.io/docs/
+  app.on('pullrequest.opened', async (context: Context<Webhooks.WebhookPayloadPullRequest>) => {
+    const pr = context.payload.pull_request;
+    const repo = context.repo();
 
-  // To get your app running against GitHub, see:
-  // https://probot.github.io/docs/development/
+    await context.github.pulls.create({
+      owner: repo.owner,
+      repo: repo.repo,
+      title: `[DEV] ${pr.title}`,
+      head: pr.head.label,
+      base: 'development',
+      body: `Ver o [PR pra master](${pr.html_url})`
+    })
+  })
 }
