@@ -2,6 +2,10 @@ import { Application, Context } from 'probot' // eslint-disable-line no-unused-v
 import Webhooks from '@octokit/webhooks';
 
 export = (app: Application) => {
+  app.on('*', async (context) => {
+    console.log(`Received event: ${context.event}`);
+  });
+
   app.on('pullrequest.opened', async (context: Context<Webhooks.WebhookPayloadPullRequest>) => {
     const pr = context.payload.pull_request;
 
